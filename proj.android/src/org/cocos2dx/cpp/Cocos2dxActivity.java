@@ -197,7 +197,7 @@ public class Cocos2dxActivity extends NativeActivity{
         }
         adView = new AdView(this);
         adView.setAdSize(AdSize.BANNER);
-        adView.setAdUnitId("ca-app-pub-9353254478629065/4014378631");
+        adView.setAdUnitId("ca-app-pub-9353254478629065/9754907431");
         handler.post(new Runnable() {
             public void run() {
                 /*
