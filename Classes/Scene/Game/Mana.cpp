@@ -1,9 +1,13 @@
-//
-//  Mana.cpp
-//  leadblow
-//
-//  Created by ntotani on 2014/05/03.
-//
-//
-
 #include "Mana.h"
+
+Mana* Mana::create(const std::string& filename)
+{
+    auto *sprite = new Mana();
+    if (sprite && sprite->initWithFile(filename))
+    {
+        sprite->autorelease();
+        return sprite;
+    }
+    CC_SAFE_DELETE(sprite);
+    return nullptr;
+}

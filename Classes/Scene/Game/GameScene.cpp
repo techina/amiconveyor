@@ -63,16 +63,9 @@ void GameScene::onTouchEnded(Touch* touch, Event* event)
     auto dollar = Mana::create("img/dollar.png");
     dollar->setPosition(manaA->getPosition());
     addChild(dollar);
-
-    auto mana = static_cast<Mana*>(dollar);
     auto touchEnd = touch->getLocation();
-    mana->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
-    flyingManas.push_back(mana);
-
-    auto b = Burger::create("img/dollar.png");
-    b->setPosition(laneA->getPosition());
-    addChild(b);
-    burgers.push_back(static_cast<Burger*>(b));
+    dollar->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
+    flyingManas.push_back(dollar);
 }
 
 void GameScene::update(float dt)
@@ -90,23 +83,32 @@ void GameScene::update(float dt)
     }
     for (auto it = burgers.begin(); it != burgers.end();) {
         auto e = *it;
-        e->setPosition(e->getPosition() + Point(-50 * dt, 0));
+        auto vec = Point(-50 * dt, 0);
+        e->setPosition(e->getPosition() + vec);
+        for (auto m : e->manas) { m->setPosition(m->getPosition() + vec); }
 
-        bool hit = false;
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             if ((*itt)->getBoundingBox().intersectsRect(e->getBoundingBox())) {
-                hit = true;
-                (*itt)->removeFromParent();
+                e->manas.push_back(*itt);
                 flyingManas.erase(itt);
                 break;
             }
         }
-        
-        if (hit || !getBoundingBox().intersectsRect(e->getBoundingBox())) {
+
+        if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
+            for (auto m : e->manas) { m->removeFromParent(); }
             e->removeFromParent();
             it = burgers.erase(it);
         } else {
             it++;
         }
+    }
+    spawnCounter -= dt;
+    if (spawnCounter < 0) {
+        spawnCounter = 3;
+        auto b = Burger::create("img/dollar.png");
+        b->setPosition(laneA->getPosition());
+        addChild(b);
+        burgers.push_back(b);
     }
 }
