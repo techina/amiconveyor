@@ -60,7 +60,7 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 
 void GameScene::onTouchEnded(Touch* touch, Event* event)
 {
-    auto dollar = Mana::create("img/dollar.png");
+    auto dollar = Mana::create("img/cookie.png");
     dollar->setPosition(manaA->getPosition());
     addChild(dollar);
     auto touchEnd = touch->getLocation();
@@ -88,8 +88,10 @@ void GameScene::update(float dt)
         for (auto m : e->manas) { m->setPosition(m->getPosition() + vec); }
 
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
-            if ((*itt)->getBoundingBox().intersectsRect(e->getBoundingBox())) {
-                e->manas.push_back(*itt);
+            auto fm = *itt;
+            if (fm->getBoundingBox().intersectsRect(e->getBoundingBox())) {
+                fm->setPosition(e->getPosition() + Point(0, 20 * e->manas.size()));
+                e->manas.push_back(fm);
                 flyingManas.erase(itt);
                 break;
             }
@@ -106,7 +108,7 @@ void GameScene::update(float dt)
     spawnCounter -= dt;
     if (spawnCounter < 0) {
         spawnCounter = 3;
-        auto b = Burger::create("img/dollar.png");
+        auto b = Burger::create("img/plate.png");
         b->setPosition(laneA->getPosition());
         addChild(b);
         burgers.push_back(b);
