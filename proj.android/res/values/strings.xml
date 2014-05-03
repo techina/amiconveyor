@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GREEEEED</string>
+    <string name="app_id">1414680788800894</string>
+    <string name="title_activity_facebook">Facebook</string>
+    <string name="action_post">POST</string>
+    <string name="image_desc">img</string>
+    <string name="iab_key">hogehoge</string>
+
+</resources>
