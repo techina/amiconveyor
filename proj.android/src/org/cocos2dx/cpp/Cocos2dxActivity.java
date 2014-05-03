@@ -145,7 +145,7 @@ public class Cocos2dxActivity extends NativeActivity{
   @Override
   protected void onStart() {
       super.onStart();
-      FlurryAgent.onStartSession(this, "XK5G85PB9JXCX5XV2TYM");
+      FlurryAgent.onStartSession(this, "ZJZQ9YBJDQG44WY48ZXV");
       gameHelper.onStart(this);
   }
 

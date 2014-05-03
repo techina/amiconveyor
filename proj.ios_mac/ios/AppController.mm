@@ -17,7 +17,7 @@ static AppDelegate s_sharedApplication;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     [Flurry setCrashReportingEnabled:YES];
-    [Flurry startSession:@"V6CR55MGFVRB3TGTHJSN"];
+    [Flurry startSession:@"442266FH3VGQSYTGXBYN"];
     
     // Override point for customization after application launch.
 
