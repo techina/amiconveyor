@@ -1,15 +1,14 @@
-Resources
 
 # Ignore thumbnails created by windows
 Thumbs.db
 
 # Ignore files build by ndk and eclipse
+proj.android/assets/
 proj.android/libs/armeabi/
 proj.android/libs/x86/
 bin/
 obj/
 gen/
-assets/
 local.properties
 
 # Ignore python compiled files
