@@ -72,14 +72,14 @@ bool TitleScene::init()
 void TitleScene::onStartButtonTouch(Ref* target, TouchEventType type)
 {
     if (type == TouchEventType::TOUCH_EVENT_ENDED) {
-        Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene(1), Color3B(255, 255, 255)));
+        Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene(), Color3B(255, 255, 255)));
     }
 }
 
 void TitleScene::onMultiButtonTouch(Ref* target, TouchEventType type)
 {
     if (type == TouchEventType::TOUCH_EVENT_ENDED) {
-        Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene(2), Color3B(255, 255, 255)));
+        Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene(), Color3B(255, 255, 255)));
     }
 }
 

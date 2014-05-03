@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "Common/LBFileUtils.h"
-#include "Scene/Title/TitleScene.h"
+#include "Scene/Game/GameScene.h"
 
 USING_NS_CC;
 
@@ -20,7 +20,14 @@ bool AppDelegate::applicationDidFinishLaunching() {
         glView = GLView::create("leadblow");
         director->setOpenGLView(glView);
     }
-    glView->setDesignResolutionSize(640, 960, ResolutionPolicy::FIXED_WIDTH);
+
+    auto drSize = glView->getFrameSize();
+    if (drSize.width > drSize.height) {
+        glView->setDesignResolutionSize(640, 360, ResolutionPolicy::FIXED_HEIGHT);
+    } else {
+        glView->setDesignResolutionSize(360, 640, ResolutionPolicy::FIXED_WIDTH);
+    }
+    director->setContentScaleFactor(3.0f);
 
 #ifdef COCOS2D_DEBUG
     // turn on display FPS
@@ -31,9 +38,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    auto scene = TitleScene::createScene();
-
-    srand((unsigned int)time(NULL));
+    auto scene = GameScene::createScene();
 
     // run
     director->runWithScene(scene);
