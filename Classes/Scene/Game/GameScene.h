@@ -26,6 +26,8 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     list<Burger*> burgers;
     float spawnCounter;
     RandomImpl* rnd;
+    LabelTTF* scoreLabel;
+    int score;
 public:
     static Scene* createScene();
     virtual bool init();
@@ -36,7 +38,9 @@ public:
     void onTouchEnded(Touch* touch, Event* event);
     virtual bool onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVariableName, Node* pNode);
     void update(float dt);
+    void updateBurgers(float dt);
     void spawnMana(Mana* mana);
+    void drawScore();
 };
 
 class GameSceneLoader : public LayerLoader

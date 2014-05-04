@@ -2,6 +2,7 @@
 #include "AppDelegate.h"
 #include "SimpleAudioEngine.h"
 #include "cocosbuilder/CCNodeLoaderLibrary.h"
+#include "../Result/ResultScene.h"
 
 Scene* GameScene::createScene()
 {
@@ -25,6 +26,7 @@ bool GameScene::init()
 
     spawnCounter = 3;
     rnd = new RandomImpl();
+    score = 0;
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     auto origin = Director::getInstance()->getVisibleOrigin();
@@ -51,6 +53,7 @@ bool GameScene::onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVaria
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaA", Node*, manaA);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaB", Node*, manaB);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaC", Node*, manaC);
+    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "scoreLabel", LabelTTF*, scoreLabel);
     return true;
 }
 
@@ -66,6 +69,7 @@ void GameScene::initManas()
         addChild(mana);
         flyingManas.push_back(mana);
     }
+    drawScore();
 }
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
@@ -99,6 +103,19 @@ void GameScene::update(float dt)
             it++;
         }
     }
+    updateBurgers(dt);
+    spawnCounter -= dt;
+    if (spawnCounter < 0) {
+        spawnCounter = 3;
+        auto b = Burger::create("img/plate.png", rnd);
+        b->setPosition(laneA->getPosition());
+        addChild(b);
+        burgers.push_back(b);
+    }
+}
+
+void GameScene::updateBurgers(float dt)
+{
     for (auto it = burgers.begin(); it != burgers.end();) {
         auto e = *it;
         auto vec = Point(-50 * dt, 0);
@@ -120,22 +137,19 @@ void GameScene::update(float dt)
                 break;
             }
         }
-
         if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
-            for (auto m : e->manas) { m->removeFromParent(); }
-            e->removeFromParent();
+            if (e->validate()) {
+                score++;
+                drawScore();
+                for (auto m : e->manas) { m->removeFromParent(); }
+                e->removeFromParent();
+            } else {
+                Director::getInstance()->replaceScene(ResultScene::createScene());
+            }
             it = burgers.erase(it);
         } else {
             it++;
         }
-    }
-    spawnCounter -= dt;
-    if (spawnCounter < 0) {
-        spawnCounter = 3;
-        auto b = Burger::create("img/plate.png", rnd);
-        b->setPosition(laneA->getPosition());
-        addChild(b);
-        burgers.push_back(b);
     }
 }
 
@@ -148,4 +162,9 @@ void GameScene::spawnMana(Mana *e)
         mana->velocity = Point::ZERO;
         flyingManas.push_back(mana);
     }), NULL));
+}
+
+void GameScene::drawScore()
+{
+    scoreLabel->setString(StringUtils::format("%04d", score));
 }

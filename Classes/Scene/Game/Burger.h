@@ -15,6 +15,7 @@ public:
     static Burger* create(const string& filename, IRandom *rnd);
     vector<Mana*> manas;
     vector<int> correctColors;
+    bool validate();
 };
 
 #endif /* defined(__leadblow__Burger__) */
