@@ -9,7 +9,8 @@ USING_NS_CC;
 class Mana : public Sprite
 {
 public:
-    static Mana* create(const string& filename);
+    Mana(Node* home, int color);
+    static Mana* create(const string& filename, Node* home, int color);
     Point velocity;
     Node* home;
     int color;
