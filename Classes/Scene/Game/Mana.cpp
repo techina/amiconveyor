@@ -6,9 +6,10 @@ Mana::Mana(Node* home, int color)
 {
 }
 
-Mana* Mana::create(const std::string& filename, Node* home, int color)
+Mana* Mana::create(Node* home, int color)
 {
     auto *sprite = new Mana(home, color);
+    auto filename = StringUtils::format("img/game_mana_%d.png", color);
     if (sprite && sprite->initWithFile(filename))
     {
         sprite->autorelease();

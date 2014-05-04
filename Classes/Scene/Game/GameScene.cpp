@@ -80,8 +80,7 @@ void GameScene::initManas()
 {
     vector<Node*> manas = {manaA, manaB, manaC};
     for (int i = 0; i < manas.size(); i++) {
-        auto filename = StringUtils::format("img/cookie%d.png", i);
-        auto mana = Mana::create(filename, manas[i], i);
+        auto mana = Mana::create(manas[i], i);
         mana->setPosition(manas[i]->getPosition());
         addChild(mana);
         flyingManas.push_back(mana);
@@ -126,7 +125,7 @@ void GameScene::update(float dt)
         for (int i = 0; i < currentLevel.height; i++) {
             correctColors.push_back(rnd->next() % 3);
         }
-        auto b = Burger::create("img/plate.png", correctColors);
+        auto b = Burger::create("img/game_bread_under.png", correctColors);
         auto lane = currentLevel.lane && rnd->next() % 2 == 0 ? laneB : laneA;
         b->setPosition(lane->getPosition());
         addChild(b);
@@ -180,7 +179,7 @@ void GameScene::updateBurgers(float dt)
                 e->manas.push_back(fm);
                 fm->setPosition(e->getPosition() + Point(0, 10 * e->manas.size()));
                 fm->setOrderOfArrival(e->manas.size());
-                auto mana = Mana::create(StringUtils::format("img/cookie%d.png", fm->color), fm->home, fm->color);
+                auto mana = Mana::create(fm->home, fm->color);
                 spawnMana(mana);
                 addChild(mana);
                 flyingManas.erase(itt);
