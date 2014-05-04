@@ -11,7 +11,7 @@ Scene* GameScene::createScene()
     auto ccbReader = new CCBReader(nodeLoaderLibrary);
     ccbReader->autorelease();
     auto layer = ccbReader->readNodeGraphFromFile("ccbi/GameScene.ccbi");
-    //static_cast<PuzzleScene*>(layer)->initStoneLayer();
+    static_cast<GameScene*>(layer)->initManas();
     scene->addChild(layer);
     return scene;
 }
@@ -48,7 +48,23 @@ bool GameScene::onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVaria
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "laneA", Node*, laneA);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "laneB", Node*, laneB);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaA", Node*, manaA);
+    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaB", Node*, manaB);
+    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaC", Node*, manaC);
     return true;
+}
+
+void GameScene::initManas()
+{
+    vector<Node*> manas = {manaA, manaB, manaC};
+    for (int i = 0; i < manas.size(); i++) {
+        auto filename = StringUtils::format("img/cookie%d.png", i);
+        auto mana = Mana::create(filename);
+        mana->setPosition(manas[i]->getPosition());
+        mana->home = manas[i];
+        mana->color = i;
+        addChild(mana);
+        flyingManas.push_back(mana);
+    }
 }
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
@@ -60,12 +76,13 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 
 void GameScene::onTouchEnded(Touch* touch, Event* event)
 {
-    auto dollar = Mana::create("img/cookie.png");
-    dollar->setPosition(manaA->getPosition());
-    addChild(dollar);
-    auto touchEnd = touch->getLocation();
-    dollar->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
-    flyingManas.push_back(dollar);
+    for (auto mana : flyingManas) {
+        if (mana->getBoundingBox().containsPoint(touchBegan)) {
+            auto touchEnd = touch->getLocation();
+            mana->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
+            break;
+        }
+    }
 }
 
 void GameScene::update(float dt)
@@ -75,7 +92,7 @@ void GameScene::update(float dt)
         auto e = *it;
         e->setPosition(e->getPosition() + e->velocity * dt);
         if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
-            e->removeFromParent();
+            spawnMana(e);
             it = flyingManas.erase(it);
         } else {
             it++;
@@ -90,8 +107,14 @@ void GameScene::update(float dt)
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             auto fm = *itt;
             if (fm->getBoundingBox().intersectsRect(e->getBoundingBox())) {
-                fm->setPosition(e->getPosition() + Point(0, 20 * e->manas.size()));
                 e->manas.push_back(fm);
+                fm->setPosition(e->getPosition() + Point(0, 10 * e->manas.size()));
+                fm->setOrderOfArrival(e->manas.size());
+                auto mana = Mana::create(StringUtils::format("img/cookie%d.png", fm->color));
+                mana->home = fm->home;
+                mana->color = fm->color;
+                spawnMana(mana);
+                addChild(mana);
                 flyingManas.erase(itt);
                 break;
             }
@@ -113,4 +136,15 @@ void GameScene::update(float dt)
         addChild(b);
         burgers.push_back(b);
     }
+}
+
+void GameScene::spawnMana(Mana *e)
+{
+    e->setPosition(Point(-1000, -1000));
+    e->runAction(Sequence::create(DelayTime::create(1.0f), CallFuncN::create([&](Node* e) {
+        auto mana = static_cast<Mana*>(e);
+        mana->setPosition(mana->home->getPosition());
+        mana->velocity = Point::ZERO;
+        flyingManas.push_back(mana);
+    }), NULL));
 }

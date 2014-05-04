@@ -19,18 +19,22 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     float flickCounter;
     Point touchBegan;
     Node* manaA;
+    Node* manaB;
+    Node* manaC;
     list<Mana*> flyingManas;
     list<Burger*> burgers;
     float spawnCounter;
 public:
     static Scene* createScene();
     virtual bool init();
+    void initManas();
     ~GameScene(){};
     CREATE_FUNC(GameScene);
     bool onTouchBegan(Touch* touch, Event* event);
     void onTouchEnded(Touch* touch, Event* event);
     virtual bool onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVariableName, Node* pNode);
     void update(float dt);
+    void spawnMana(Mana* mana);
 };
 
 class GameSceneLoader : public LayerLoader

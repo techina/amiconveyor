@@ -11,6 +11,8 @@ class Mana : public Sprite
 public:
     static Mana* create(const string& filename);
     Point velocity;
+    Node* home;
+    int color;
 };
 
 #endif /* defined(__leadblow__Mana__) */
