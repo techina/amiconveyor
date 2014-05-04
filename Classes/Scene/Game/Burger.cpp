@@ -1,14 +1,8 @@
 #include "Burger.h"
 
-Burger::Burger(IRandom *rnd)
+Burger* Burger::create(const std::string& filename, vector<int> colors)
 {
-    correctColors.push_back(rnd->next() % 3);
-    correctColors.push_back(rnd->next() % 3);
-}
-
-Burger* Burger::create(const std::string& filename, IRandom *rnd)
-{
-    auto *sprite = new Burger(rnd);
+    auto *sprite = new Burger(colors);
     if (sprite && sprite->initWithFile(filename))
     {
         sprite->autorelease();

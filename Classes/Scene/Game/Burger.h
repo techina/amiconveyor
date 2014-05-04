@@ -3,7 +3,6 @@
 
 #include "cocos2d.h"
 #include "Mana.h"
-#include "IRandom.h"
 
 using namespace std;
 USING_NS_CC;
@@ -11,8 +10,8 @@ USING_NS_CC;
 class Burger : public Sprite
 {
 public:
-    Burger(IRandom *rnd);
-    static Burger* create(const string& filename, IRandom *rnd);
+    Burger(vector<int> colors):correctColors(colors){};
+    static Burger* create(const string& filename, vector<int> colors);
     vector<Mana*> manas;
     vector<int> correctColors;
     bool validate();

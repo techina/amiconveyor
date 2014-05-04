@@ -13,6 +13,17 @@ using namespace std;
 USING_NS_CC;
 using namespace cocosbuilder;
 
+class Level
+{
+public:
+    float delta;
+    int height;
+    float speed;
+    float freq;
+    bool potato;
+    bool lane;
+};
+
 class GameScene : public Layer, public CCBMemberVariableAssigner
 {
     Node* laneA;
@@ -28,6 +39,10 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     RandomImpl* rnd;
     LabelTTF* scoreLabel;
     int score;
+    list<Level> levels;
+    float levelCounter;
+    Level currentLevel;
+    float coolDown;
 public:
     static Scene* createScene();
     virtual bool init();
@@ -38,6 +53,8 @@ public:
     void onTouchEnded(Touch* touch, Event* event);
     virtual bool onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVariableName, Node* pNode);
     void update(float dt);
+    void checkLevel(float dt);
+    void updateManas(float dt);
     void updateBurgers(float dt);
     void spawnMana(Mana* mana);
     void drawScore();

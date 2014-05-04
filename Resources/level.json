@@ -1,0 +1,6 @@
+{
+    "coolDown":0.5,
+    "events":[
+              {"delta":0, "height":2, "speed":50, "freq":3}
+    ]
+}

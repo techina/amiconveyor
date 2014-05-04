@@ -3,6 +3,7 @@
 #include "SimpleAudioEngine.h"
 #include "cocosbuilder/CCNodeLoaderLibrary.h"
 #include "../Result/ResultScene.h"
+#include "spine/Json.h"
 
 Scene* GameScene::createScene()
 {
@@ -24,9 +25,27 @@ bool GameScene::init()
         return false;
     }
 
-    spawnCounter = 3;
     rnd = new RandomImpl();
     score = 0;
+    auto str = FileUtils::getInstance()->getStringFromFile("level.json");
+    auto json = Json_create(str.c_str());
+    coolDown = Json_getFloat(json, "coolDown", 0.5f);
+    auto events = Json_getItem(json, "events");
+    auto it = events->child;
+    while (it) {
+        Level l;
+        l.delta = Json_getFloat(it, "delta", 0);
+        l.height = Json_getInt(it, "height", 2);
+        l.speed = Json_getFloat(it, "speed", 50);
+        l.freq = Json_getFloat(it, "freq", 3);
+        l.potato = Json_getInt(it, "potato", 0);
+        l.lane = Json_getInt(it, "lane", 0);
+        levels.push_back(l);
+        it = it->next;
+    }
+    levelCounter = 0;
+    checkLevel(0);
+    spawnCounter = currentLevel.freq;
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     auto origin = Director::getInstance()->getVisibleOrigin();
@@ -91,6 +110,39 @@ void GameScene::onTouchEnded(Touch* touch, Event* event)
 void GameScene::update(float dt)
 {
     flickCounter += dt;
+    checkLevel(dt);
+    updateManas(dt);
+    updateBurgers(dt);
+    spawnCounter -= dt;
+    if (spawnCounter < 0) {
+        spawnCounter = currentLevel.freq;
+        vector<int> correctColors;
+        for (int i = 0; i < currentLevel.height; i++) {
+            correctColors.push_back(rnd->next() % 3);
+        }
+        auto b = Burger::create("img/plate.png", correctColors);
+        b->setPosition(laneA->getPosition());
+        addChild(b);
+        burgers.push_back(b);
+    }
+}
+
+void GameScene::checkLevel(float dt)
+{
+    if (levels.empty()) {
+        return;
+    }
+    levelCounter += dt;
+    auto nextLevel = levels.front();
+    if (levelCounter >= nextLevel.delta) {
+        levelCounter = 0;
+        currentLevel = nextLevel;
+        levels.pop_front();
+    }
+}
+
+void GameScene::updateManas(float dt)
+{
     for (auto it = flyingManas.begin(); it != flyingManas.end();) {
         auto e = *it;
         e->setPosition(e->getPosition() + e->velocity * dt);
@@ -101,22 +153,13 @@ void GameScene::update(float dt)
             it++;
         }
     }
-    updateBurgers(dt);
-    spawnCounter -= dt;
-    if (spawnCounter < 0) {
-        spawnCounter = 3;
-        auto b = Burger::create("img/plate.png", rnd);
-        b->setPosition(laneA->getPosition());
-        addChild(b);
-        burgers.push_back(b);
-    }
 }
 
 void GameScene::updateBurgers(float dt)
 {
     for (auto it = burgers.begin(); it != burgers.end();) {
         auto e = *it;
-        auto vec = Point(-50 * dt, 0);
+        auto vec = Point(-currentLevel.speed * dt, 0);
         e->setPosition(e->getPosition() + vec);
         for (auto m : e->manas) { m->setPosition(m->getPosition() + vec); }
 
@@ -152,7 +195,7 @@ void GameScene::updateBurgers(float dt)
 void GameScene::spawnMana(Mana *e)
 {
     e->setPosition(Point(-1000, -1000));
-    e->runAction(Sequence::create(DelayTime::create(1.0f), CallFuncN::create([&](Node* e) {
+    e->runAction(Sequence::create(DelayTime::create(coolDown), CallFuncN::create([&](Node* e) {
         auto mana = static_cast<Mana*>(e);
         mana->setPosition(mana->home->getPosition());
         mana->velocity = Point::ZERO;
