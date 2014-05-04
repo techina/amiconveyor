@@ -34,10 +34,10 @@ bool GameScene::init()
     auto it = events->child;
     while (it) {
         Level l;
-        l.delta = Json_getFloat(it, "delta", 0);
-        l.height = Json_getInt(it, "height", 2);
-        l.speed = Json_getFloat(it, "speed", 50);
-        l.freq = Json_getFloat(it, "freq", 3);
+        l.delta = Json_getFloat(it, "delta", -1);
+        l.height = Json_getInt(it, "height", -1);
+        l.speed = Json_getFloat(it, "speed", -1);
+        l.freq = Json_getFloat(it, "freq", -1);
         l.potato = Json_getInt(it, "potato", 0);
         l.lane = Json_getInt(it, "lane", 0);
         levels.push_back(l);
@@ -93,6 +93,11 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 {
     flickCounter = 0;
     touchBegan = touch->getLocation();
+    for (auto mana : flyingManas) {
+        if (mana->velocity.getLengthSq() <= 0 && mana->getBoundingBox().containsPoint(touchBegan)) {
+            mana->setScale(1.2);
+        }
+    }
     return true;
 }
 
@@ -102,6 +107,7 @@ void GameScene::onTouchEnded(Touch* touch, Event* event)
         if (mana->getBoundingBox().containsPoint(touchBegan)) {
             auto touchEnd = touch->getLocation();
             mana->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
+            mana->setScale(1);
             break;
         }
     }
@@ -121,7 +127,8 @@ void GameScene::update(float dt)
             correctColors.push_back(rnd->next() % 3);
         }
         auto b = Burger::create("img/plate.png", correctColors);
-        b->setPosition(laneA->getPosition());
+        auto lane = currentLevel.lane && rnd->next() % 2 == 0 ? laneB : laneA;
+        b->setPosition(lane->getPosition());
         addChild(b);
         burgers.push_back(b);
     }
@@ -136,7 +143,11 @@ void GameScene::checkLevel(float dt)
     auto nextLevel = levels.front();
     if (levelCounter >= nextLevel.delta) {
         levelCounter = 0;
-        currentLevel = nextLevel;
+        currentLevel.height = nextLevel.height != -1 ? nextLevel.height : currentLevel.height;
+        currentLevel.speed = nextLevel.speed != -1 ? nextLevel.speed : currentLevel.speed;
+        currentLevel.freq = nextLevel.freq != -1 ? nextLevel.freq : currentLevel.freq;
+        currentLevel.potato |= nextLevel.potato;
+        currentLevel.lane |= nextLevel.lane;
         levels.pop_front();
     }
 }
@@ -176,7 +187,7 @@ void GameScene::updateBurgers(float dt)
                 break;
             }
         }
-        if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
+        if (e->getBoundingBox().getMaxX() < 0) {
             if (e->validate()) {
                 score++;
                 drawScore();
