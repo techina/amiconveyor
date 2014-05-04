@@ -177,6 +177,13 @@ void GameScene::updateBurgers(float dt)
             auto fm = *itt;
             if (fm->getBoundingBox().intersectsRect(e->getBoundingBox())) {
                 e->manas.push_back(fm);
+                int idx = e->manas.size() - 1;
+                if (idx < e->icons.size()) {
+                    auto icon = e->icons[idx];
+                    auto mark = Sprite::create(StringUtils::format("img/game_icon_%s.png", e->correctColors[idx] == fm->color ? "good" : "bad"));
+                    mark->setPosition(Point(icon->getContentSize()) / 2);
+                    icon->addChild(mark);
+                }
                 fm->setPosition(e->getPosition() + Point(0, 10 * e->manas.size()));
                 fm->setOrderOfArrival(e->manas.size());
                 auto mana = Mana::create(fm->home, fm->color);

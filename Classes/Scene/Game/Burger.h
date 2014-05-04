@@ -14,9 +14,11 @@ class Burger : public Sprite
 public:
     Burger(vector<int> colors):correctColors(colors){};
     static Burger* create(const string& filename, vector<int> colors);
+    bool validate();
+
     vector<Mana*> manas;
     vector<int> correctColors;
-    bool validate();
+    vector<Sprite*> icons;
 };
 
 #endif /* defined(__leadblow__Burger__) */

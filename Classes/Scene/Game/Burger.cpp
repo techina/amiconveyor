@@ -25,6 +25,7 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
             num->setPosition(3, 3);
             num->setColor(Color3B::BLACK);
             mana->addChild(num);
+            sprite->icons.push_back(mana);
         }
         popup->setContentSize(Size(wid * col + (margin + 2) * 2, popup->getContentSize().height));
         auto size = popup->getContentSize();
