@@ -4,6 +4,7 @@
 #include "../../Common/GamePlatform.h"
 #include "../../Common/LBSocial.h"
 #include "../../Common/LBAnalytics.h"
+#include "../Game/GameScene.h"
 
 USING_NS_CC;
 
@@ -50,4 +51,5 @@ bool ResultScene::init()
 
 void ResultScene::onTouchEnded(Touch* touch, Event* event)
 {
+    Director::getInstance()->replaceScene(GameScene::createScene());
 }
