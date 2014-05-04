@@ -7,6 +7,7 @@
 #include "UIButton.h"
 #include "Burger.h"
 #include "Mana.h"
+#include "../../Common/RandomImpl.h"
 
 using namespace std;
 USING_NS_CC;
@@ -24,6 +25,7 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     list<Mana*> flyingManas;
     list<Burger*> burgers;
     float spawnCounter;
+    RandomImpl* rnd;
 public:
     static Scene* createScene();
     virtual bool init();

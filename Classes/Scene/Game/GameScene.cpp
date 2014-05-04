@@ -24,13 +24,14 @@ bool GameScene::init()
     }
 
     spawnCounter = 3;
+    rnd = new RandomImpl();
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     auto origin = Director::getInstance()->getVisibleOrigin();
 
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-    audio->preloadEffect("se_coin.mp3");
-    audio->preloadEffect("se_ob.mp3");
+    audio->preloadEffect("sound/se_coin.mp3");
+    audio->preloadEffect("sound/se_ob.mp3");
 
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     auto listener = EventListenerTouchOneByOne::create();
@@ -131,7 +132,7 @@ void GameScene::update(float dt)
     spawnCounter -= dt;
     if (spawnCounter < 0) {
         spawnCounter = 3;
-        auto b = Burger::create("img/plate.png");
+        auto b = Burger::create("img/plate.png", rnd);
         b->setPosition(laneA->getPosition());
         addChild(b);
         burgers.push_back(b);
