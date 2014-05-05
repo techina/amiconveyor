@@ -18,11 +18,13 @@ public:
     bool validate();
     void jet();
     Point nextPoint();
+    Mana* popMana(Node* parent);
 
     vector<Mana*> manas;
     vector<int> correctColors;
     vector<Sprite*> icons;
     Scale9Sprite* popup;
+    int burgerId;
 };
 
 #endif /* defined(__leadblow__Burger__) */

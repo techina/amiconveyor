@@ -57,6 +57,20 @@ void Burger::addMana(Mana *mana)
     mana->removeFromParent();
     addChild(mana);
     mana->release();
+    mana->lastBurger = burgerId;
+}
+
+Mana* Burger::popMana(Node* parent)
+{
+    auto mana = manas.back();
+    mana->retain();
+    mana->removeFromParent();
+    parent->addChild(mana);
+    mana->release();
+    manas.pop_back();
+    auto icon = icons[manas.size()];
+    icon->removeChild(icon->getChildren().at(icon->getChildrenCount() - 1), true);
+    return mana;
 }
 
 bool Burger::validate()

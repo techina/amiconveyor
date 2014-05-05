@@ -3,6 +3,7 @@
 Mana::Mana(Node* home, int color)
 :home(home)
 ,color(color)
+,lastBurger(-1)
 {
 }
 

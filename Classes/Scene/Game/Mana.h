@@ -11,9 +11,11 @@ class Mana : public Sprite
 public:
     Mana(Node* home, int color);
     static Mana* create(Node* home, int color);
+
     Point velocity;
     Node* home;
     int color;
+    int lastBurger;
 };
 
 #endif /* defined(__leadblow__Mana__) */

@@ -120,12 +120,24 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 
 void GameScene::onTouchEnded(Touch* touch, Event* event)
 {
+    auto touchEnd = touch->getLocation();
+    auto vel = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
     for (auto mana : flyingManas) {
         if (mana->getBoundingBox().containsPoint(touchBegan)) {
-            auto touchEnd = touch->getLocation();
-            mana->velocity = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
+            mana->velocity = vel;
             mana->setScale(1);
-            break;
+            return;
+        }
+    }
+    for (auto b : burgers) {
+        if (b->getBoundingBox().containsPoint(touchBegan)) {
+            if (b->manas.empty()) {
+                continue;
+            }
+            auto mana = b->popMana(this);
+            mana->setPosition(touchBegan);
+            mana->velocity = vel;
+            flyingManas.push_back(mana);
         }
     }
 }
@@ -147,6 +159,7 @@ void GameScene::update(float dt)
             correctColors.push_back(rnd->next() % 3);
         }
         auto b = Burger::create("img/game_bread_under.png", correctColors);
+        b->burgerId = rnd->next();
         auto lane = currentLevel.lane && rnd->next() % 2 == 0 ? laneB : laneA;
         b->setPosition(lane->getPosition());
         addChild(b);
@@ -182,7 +195,9 @@ void GameScene::updateManas(float dt)
         auto e = *it;
         e->setPosition(e->getPosition() + e->velocity * dt);
         if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
-            spawnMana(e);
+            if (e->lastBurger == -1) {
+                spawnMana(e);
+            }
             it = flyingManas.erase(it);
         } else {
             it++;
@@ -200,11 +215,13 @@ void GameScene::updateBurgers(float dt)
         }
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             auto fm = *itt;
-            if (fm->getBoundingBox().intersectsRect(burger->getBoundingBox())) {
+            if (fm->getBoundingBox().intersectsRect(burger->getBoundingBox()) && fm->lastBurger != burger->burgerId) {
+                if (fm->lastBurger == -1) {
+                    auto mana = Mana::create(fm->home, fm->color);
+                    spawnMana(mana);
+                    addChild(mana);
+                }
                 burger->addMana(fm);
-                auto mana = Mana::create(fm->home, fm->color);
-                spawnMana(mana);
-                addChild(mana);
                 flyingManas.erase(itt);
                 tutorial = false;
                 ccbAnimationManager->runAnimationsForSequenceNamed("game");
