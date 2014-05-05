@@ -6,7 +6,8 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
     if (sprite && sprite->initWithFile(filename))
     {
         sprite->autorelease();
-        auto popup = Scale9Sprite::create(Rect(2, 67, 192, 60), "img/game_recipe.png");
+        sprite->popup = Scale9Sprite::create(Rect(2, 67, 192, 60), "img/game_recipe.png");
+        auto popup = sprite->popup;
         auto cc = sprite->correctColors;
         int col = (cc.size() + 1) / 2;
         if (cc.size() == 2) {
@@ -40,6 +41,24 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
     return nullptr;
 }
 
+void Burger::addMana(Mana *mana)
+{
+    manas.push_back(mana);
+    int idx = manas.size() - 1;
+    if (idx < icons.size()) {
+        auto icon = icons[idx];
+        auto mark = Sprite::create(StringUtils::format("img/game_icon_%s.png", correctColors[idx] == mana->color ? "good" : "bad"));
+        mark->setPosition(Point(icon->getContentSize()) / 2);
+        icon->addChild(mark);
+    }
+    mana->setPosition(nextPoint());
+    mana->setOrderOfArrival(manas.size());
+    mana->retain();
+    mana->removeFromParent();
+    addChild(mana);
+    mana->release();
+}
+
 bool Burger::validate()
 {
     if (correctColors.size() != manas.size()) {
@@ -51,4 +70,40 @@ bool Burger::validate()
         }
     }
     return true;
+}
+
+void Burger::jet()
+{
+    popup->runAction(Spawn::create(ScaleTo::create(0.2f, 0), MoveBy::create(0.2f, Point(0, popup->getContentSize().height / 2)), NULL));
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    auto to = nextPoint();
+    auto from = Point(to.x, visibleSize.height - getPositionY());
+
+    auto bread = Sprite::create("img/game_bread.png");
+    bread->setPosition(from);
+    bread->runAction(MoveTo::create(0.2f, to));
+    auto lid = Sprite::create("img/game_lid.png");
+    lid->setPosition(from);
+    lid->runAction(Sequence::create(DelayTime::create(0.1f), MoveTo::create(0.2f, to), NULL));
+    auto comp = Sprite::create("img/game_compseal.png");
+    comp->setPosition(from);
+    comp->runAction(Sequence::create(DelayTime::create(0.2f), MoveTo::create(0.2f, to), NULL));
+    addChild(bread);
+    addChild(lid);
+    addChild(comp);
+
+    float vx = visibleSize.width;
+    float vy = visibleSize.height / 2;
+    auto delay = DelayTime::create(0.5f);
+    auto move = MoveBy::create(0.5f, Point(-vx, vy));
+    auto rotate = RotateBy::create(0.5f, -90);
+    auto then = CallFunc::create([&]() {
+        removeFromParent();
+    });
+    runAction(Sequence::create(delay, Spawn::create(move, rotate, NULL), then, NULL));
+}
+
+Point Burger::nextPoint()
+{
+    return Point(getContentSize()) / 2 + Point(-5, 7 * manas.size());
 }

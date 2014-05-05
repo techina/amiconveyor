@@ -168,24 +168,13 @@ void GameScene::updateManas(float dt)
 void GameScene::updateBurgers(float dt)
 {
     for (auto it = burgers.begin(); it != burgers.end();) {
-        auto e = *it;
+        auto burger = *it;
         auto vec = Point(-currentLevel.speed * dt, 0);
-        e->setPosition(e->getPosition() + vec);
-        for (auto m : e->manas) { m->setPosition(m->getPosition() + vec); }
-
+        burger->setPosition(burger->getPosition() + vec);
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             auto fm = *itt;
-            if (fm->getBoundingBox().intersectsRect(e->getBoundingBox())) {
-                e->manas.push_back(fm);
-                int idx = e->manas.size() - 1;
-                if (idx < e->icons.size()) {
-                    auto icon = e->icons[idx];
-                    auto mark = Sprite::create(StringUtils::format("img/game_icon_%s.png", e->correctColors[idx] == fm->color ? "good" : "bad"));
-                    mark->setPosition(Point(icon->getContentSize()) / 2);
-                    icon->addChild(mark);
-                }
-                fm->setPosition(e->getPosition() + Point(0, 10 * e->manas.size()));
-                fm->setOrderOfArrival(e->manas.size());
+            if (fm->getBoundingBox().intersectsRect(burger->getBoundingBox())) {
+                burger->addMana(fm);
                 auto mana = Mana::create(fm->home, fm->color);
                 spawnMana(mana);
                 addChild(mana);
@@ -193,15 +182,13 @@ void GameScene::updateBurgers(float dt)
                 break;
             }
         }
-        if (e->getBoundingBox().getMaxX() < 0) {
-            if (e->validate()) {
-                score++;
-                drawScore();
-                for (auto m : e->manas) { m->removeFromParent(); }
-                e->removeFromParent();
-            } else {
-                Director::getInstance()->replaceScene(ResultScene::createScene());
-            }
+        if (burger->validate()) {
+            burger->jet();
+            score++;
+            drawScore();
+            it = burgers.erase(it);
+        } else if (burger->getBoundingBox().getMaxX() < 0) {
+            Director::getInstance()->replaceScene(ResultScene::createScene());
             it = burgers.erase(it);
         } else {
             it++;
