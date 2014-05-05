@@ -31,9 +31,7 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     Node* laneB;
     float flickCounter;
     Point touchBegan;
-    Node* manaA;
-    Node* manaB;
-    Node* manaC;
+    vector<Node*> manas;
     list<Mana*> flyingManas;
     list<Burger*> burgers;
     float spawnCounter;
@@ -52,6 +50,7 @@ public:
     static Scene* createScene();
     virtual bool init();
     void initManas();
+    GameScene();
     ~GameScene(){};
     CREATE_FUNC(GameScene);
     bool onTouchBegan(Touch* touch, Event* event);

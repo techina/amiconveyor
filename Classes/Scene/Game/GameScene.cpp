@@ -5,6 +5,19 @@
 #include "../Result/ResultScene.h"
 #include "spine/Json.h"
 
+GameScene::GameScene()
+:laneA(nullptr)
+,laneB(nullptr)
+,rollerA(nullptr)
+,rollerB(nullptr)
+,scoreLabel(nullptr)
+,manas(vector<Node*>())
+{
+    for (int i = 0; i < 8; i++) {
+        manas.push_back(nullptr);
+    }
+}
+
 Scene* GameScene::createScene()
 {
     auto scene = Scene::create();
@@ -75,16 +88,15 @@ bool GameScene::onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVaria
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "laneB", Node*, laneB);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "rollerA", Sprite*, rollerA);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "rollerB", Sprite*, rollerB);
-    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaA", Node*, manaA);
-    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaB", Node*, manaB);
-    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaC", Node*, manaC);
+    for (int i = 0; i < 8; i++) {
+        CCB_MEMBERVARIABLEASSIGNER_GLUE(this, StringUtils::format("mana%d", i).c_str(), Node*, manas[i]);
+    }
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "scoreLabel", LabelTTF*, scoreLabel);
     return true;
 }
 
 void GameScene::initManas()
 {
-    vector<Node*> manas = {manaA, manaB, manaC};
     for (int i = 0; i < manas.size(); i++) {
         auto mana = Mana::create(manas[i], i);
         auto to = manas[i]->getPosition();
@@ -98,8 +110,8 @@ void GameScene::initManas()
     drawScore();
 
     auto b = Burger::create("img/game_bread_under.png", {0, 1, 2}, false);
-    b->addMana(Mana::create(manaA, 0));
-    b->addMana(Mana::create(manaB, 1));
+    b->addMana(Mana::create(manas[0], 0));
+    b->addMana(Mana::create(manas[1], 1));
     b->setPosition(laneA->getPosition());
     b->setPositionX(Director::getInstance()->getVisibleSize().width / 2);
     addChild(b);
@@ -169,7 +181,7 @@ void GameScene::update(float dt)
             }
         } else {
             for (int i = 0; i < currentLevel.height; i++) {
-                correctColors.push_back(rnd->next() % 3);
+                correctColors.push_back(rnd->next() % 6);
             }
         }
         auto b = Burger::create("img/game_bread_under.png", correctColors, isPotato);
