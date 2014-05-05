@@ -68,8 +68,10 @@ Mana* Burger::popMana(Node* parent)
     parent->addChild(mana);
     mana->release();
     manas.pop_back();
-    auto icon = icons[manas.size()];
-    icon->removeChild(icon->getChildren().at(icon->getChildrenCount() - 1), true);
+    if (manas.size() < icons.size()) {
+        auto icon = icons[manas.size()];
+        icon->removeChild(icon->getChildren().at(icon->getChildrenCount() - 1), true);
+    }
     return mana;
 }
 

@@ -120,12 +120,18 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 
 void GameScene::onTouchEnded(Touch* touch, Event* event)
 {
+    if (flickCounter == 0) {
+        flickCounter = 0.1f;
+    }
     auto touchEnd = touch->getLocation();
     auto vel = (touchEnd - touchBegan).normalize() * 100 / flickCounter;
     for (auto mana : flyingManas) {
         if (mana->getBoundingBox().containsPoint(touchBegan)) {
             mana->velocity = vel;
             mana->setScale(1);
+            auto reload = Mana::create(mana->home, mana->color);
+            spawnMana(reload);
+            addChild(reload);
             return;
         }
     }
@@ -195,9 +201,7 @@ void GameScene::updateManas(float dt)
         auto e = *it;
         e->setPosition(e->getPosition() + e->velocity * dt);
         if (!getBoundingBox().intersectsRect(e->getBoundingBox())) {
-            if (e->lastBurger == -1) {
-                spawnMana(e);
-            }
+            e->removeFromParent();
             it = flyingManas.erase(it);
         } else {
             it++;
@@ -216,11 +220,6 @@ void GameScene::updateBurgers(float dt)
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             auto fm = *itt;
             if (fm->getBoundingBox().intersectsRect(burger->getBoundingBox()) && fm->lastBurger != burger->burgerId) {
-                if (fm->lastBurger == -1) {
-                    auto mana = Mana::create(fm->home, fm->color);
-                    spawnMana(mana);
-                    addChild(mana);
-                }
                 burger->addMana(fm);
                 flyingManas.erase(itt);
                 tutorial = false;
@@ -244,6 +243,7 @@ void GameScene::updateBurgers(float dt)
 
 void GameScene::spawnMana(Mana *e)
 {
+    /*
     e->setPosition(Point(-1000, -1000));
     e->runAction(Sequence::create(DelayTime::create(coolDown), CallFuncN::create([&](Node* e) {
         auto mana = static_cast<Mana*>(e);
@@ -251,6 +251,10 @@ void GameScene::spawnMana(Mana *e)
         mana->velocity = Point::ZERO;
         flyingManas.push_back(mana);
     }), NULL));
+     */
+    e->setPosition(e->home->getPosition());
+    e->velocity = Point::ZERO;
+    flyingManas.push_back(e);
 }
 
 void GameScene::drawScore()

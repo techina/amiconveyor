@@ -1,5 +1,5 @@
 {
-    "coolDown":0.5,
+    "coolDown":0,
     "events":[
               {"delta":0, "height":2, "speed":50, "freq":3},
               {"delta":4, "lane":1}
