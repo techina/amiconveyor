@@ -97,7 +97,7 @@ void GameScene::initManas()
     }
     drawScore();
 
-    auto b = Burger::create("img/game_bread_under.png", {0, 1, 2});
+    auto b = Burger::create("img/game_bread_under.png", {0, 1, 2}, false);
     b->addMana(Mana::create(manaA, 0));
     b->addMana(Mana::create(manaB, 1));
     b->setPosition(laneA->getPosition());
@@ -161,10 +161,18 @@ void GameScene::update(float dt)
     if (spawnCounter < 0) {
         spawnCounter = currentLevel.freq;
         vector<int> correctColors;
-        for (int i = 0; i < currentLevel.height; i++) {
-            correctColors.push_back(rnd->next() % 3);
+        bool isPotato = false;
+        if (currentLevel.potato && rnd->next() % 8 == 6) {
+            isPotato = true;
+            for (int i = 0; i < 10; i++) {
+                correctColors.push_back(6);
+            }
+        } else {
+            for (int i = 0; i < currentLevel.height; i++) {
+                correctColors.push_back(rnd->next() % 3);
+            }
         }
-        auto b = Burger::create("img/game_bread_under.png", correctColors);
+        auto b = Burger::create("img/game_bread_under.png", correctColors, isPotato);
         b->burgerId = rnd->next();
         auto lane = currentLevel.lane && rnd->next() % 2 == 0 ? laneB : laneA;
         b->setPosition(lane->getPosition());

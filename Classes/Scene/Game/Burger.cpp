@@ -1,8 +1,8 @@
 #include "Burger.h"
 
-Burger* Burger::create(const std::string& filename, vector<int> colors)
+Burger* Burger::create(const std::string& filename, vector<int> colors, bool isPotato)
 {
-    auto *sprite = new Burger(colors);
+    auto *sprite = new Burger(colors, isPotato);
     if (sprite && sprite->initWithFile(filename))
     {
         sprite->autorelease();
@@ -15,18 +15,32 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
         }
         float wid = 26;
         float margin = 5;
-        for (int i = 0; i < cc.size(); i++) {
-            auto mana = Sprite::create(StringUtils::format("img/game_icon_mana_%d.png", cc[i]));
-            float x = wid * ((i % col) + 0.5f) + margin;
-            float y = i < col ? 46 : 23;
+        if (isPotato) {
+            auto mana = Sprite::create("img/game_icon_mana_6.png");
+            float x = wid * 0.5f + margin;
+            float y = 46;
             mana->setPosition(Point(x, y));
             popup->addChild(mana);
-            auto num = LabelTTF::create(StringUtils::format("%02d", i + 1), "", 10);
-            num->enableStroke(Color3B::BLACK, 3);
-            num->setPosition(3, 3);
-            num->setColor(Color3B::BLACK);
-            mana->addChild(num);
+            auto count = LabelTTF::create(StringUtils::format("x%d", (int)cc.size()), "", 10);
+            count->setPositionX(mana->getContentSize().width);
+            count->setColor(Color3B::BLACK);
+            mana->addChild(count);
             sprite->icons.push_back(mana);
+            col = 2;
+        } else {
+            for (int i = 0; i < cc.size(); i++) {
+                auto mana = Sprite::create(StringUtils::format("img/game_icon_mana_%d.png", cc[i]));
+                float x = wid * ((i % col) + 0.5f) + margin;
+                float y = i < col ? 46 : 23;
+                mana->setPosition(Point(x, y));
+                popup->addChild(mana);
+                auto num = LabelTTF::create(StringUtils::format("%02d", i + 1), "", 10);
+                num->enableStroke(Color3B::BLACK, 3);
+                num->setPosition(3, 3);
+                num->setColor(Color3B::BLACK);
+                mana->addChild(num);
+                sprite->icons.push_back(mana);
+            }
         }
         popup->setContentSize(Size(wid * col + (margin + 2) * 2, popup->getContentSize().height));
         auto size = popup->getContentSize();
@@ -44,20 +58,38 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
 void Burger::addMana(Mana *mana)
 {
     manas.push_back(mana);
-    int idx = manas.size() - 1;
-    if (idx < icons.size()) {
-        auto icon = icons[idx];
-        auto mark = Sprite::create(StringUtils::format("img/game_icon_%s.png", correctColors[idx] == mana->color ? "good" : "bad"));
-        mark->setPosition(Point(icon->getContentSize()) / 2);
-        icon->addChild(mark);
+    if (isPotato) {
+        drawPotatoCount();
+        auto size = getContentSize();
+        mana->setPosition(Point(size.width * rand() / RAND_MAX, size.height * rand() / RAND_MAX));
+    } else {
+        int idx = manas.size() - 1;
+        if (idx < icons.size()) {
+            auto icon = icons[idx];
+            auto mark = Sprite::create(StringUtils::format("img/game_icon_%s.png", correctColors[idx] == mana->color ? "good" : "bad"));
+            mark->setPosition(Point(icon->getContentSize()) / 2);
+            icon->addChild(mark);
+        }
+        mana->setPosition(nextPoint());
     }
-    mana->setPosition(nextPoint());
     mana->setOrderOfArrival(manas.size());
     mana->retain();
     mana->removeFromParent();
     addChild(mana);
     mana->release();
     mana->lastBurger = burgerId;
+}
+
+void Burger::drawPotatoCount()
+{
+    auto counter = static_cast<LabelTTF*>(icons[0]->getChildren().at(0));
+    int cnt = 0;
+    for (auto m : manas) {
+        if (m->color == 6) {
+            cnt++;
+        }
+    }
+    counter->setString(StringUtils::format("x%d", 10 - cnt));
 }
 
 Mana* Burger::popMana(Node* parent)
@@ -68,9 +100,13 @@ Mana* Burger::popMana(Node* parent)
     parent->addChild(mana);
     mana->release();
     manas.pop_back();
-    if (manas.size() < icons.size()) {
-        auto icon = icons[manas.size()];
-        icon->removeChild(icon->getChildren().at(icon->getChildrenCount() - 1), true);
+    if (isPotato) {
+        drawPotatoCount();
+    } else {
+        if (manas.size() < icons.size()) {
+            auto icon = icons[manas.size()];
+            icon->removeChild(icon->getChildren().at(icon->getChildrenCount() - 1), true);
+        }
     }
     return mana;
 }
@@ -79,6 +115,14 @@ bool Burger::validate()
 {
     if (correctColors.size() != manas.size()) {
         return false;
+    }
+    if (isPotato) {
+        for (auto m : manas) {
+            if (m->color != 6) {
+                return false;
+            }
+        }
+        return true;
     }
     for (int i = 0; i < manas.size(); i++) {
         if (correctColors[i] != manas[i]->color) {
