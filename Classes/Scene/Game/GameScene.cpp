@@ -47,12 +47,14 @@ bool GameScene::init()
     checkLevel(0);
     spawnCounter = currentLevel.freq;
 
+    /*
     auto visibleSize = Director::getInstance()->getVisibleSize();
     auto origin = Director::getInstance()->getVisibleOrigin();
 
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
     audio->preloadEffect("sound/se_coin.mp3");
     audio->preloadEffect("sound/se_ob.mp3");
+     */
 
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     auto listener = EventListenerTouchOneByOne::create();
