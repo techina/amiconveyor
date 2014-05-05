@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include "cocosbuilder/CCLayerLoader.h"
 #include "cocosbuilder/CCBMemberVariableAssigner.h"
+#include "cocosbuilder/CCBAnimationManager.h"
 #include "UIButton.h"
 #include "Burger.h"
 #include "Mana.h"
@@ -44,6 +45,9 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     Level currentLevel;
     float coolDown;
     bool tutorial;
+    Sprite* rollerA;
+    Sprite* rollerB;
+    CCBAnimationManager *ccbAnimationManager;
 public:
     static Scene* createScene();
     virtual bool init();

@@ -14,6 +14,7 @@ Scene* GameScene::createScene()
     ccbReader->autorelease();
     auto layer = ccbReader->readNodeGraphFromFile("ccbi/GameScene.ccbi");
     static_cast<GameScene*>(layer)->initManas();
+    static_cast<GameScene*>(layer)->ccbAnimationManager = ccbReader->getAnimationManager();
     scene->addChild(layer);
     return scene;
 }
@@ -72,6 +73,8 @@ bool GameScene::onAssignCCBMemberVariable(Ref* pTarget, const char* pMemberVaria
 {
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "laneA", Node*, laneA);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "laneB", Node*, laneB);
+    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "rollerA", Sprite*, rollerA);
+    CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "rollerB", Sprite*, rollerB);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaA", Node*, manaA);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaB", Node*, manaB);
     CCB_MEMBERVARIABLEASSIGNER_GLUE(this, "manaC", Node*, manaC);
@@ -149,6 +152,10 @@ void GameScene::update(float dt)
         addChild(b);
         burgers.push_back(b);
     }
+    rollerA->setRotation(rollerA->getRotation() - 2 * currentLevel.speed * dt);
+    if (currentLevel.lane) {
+        rollerB->setRotation(rollerB->getRotation() - 2 * currentLevel.speed * dt);
+    }
 }
 
 void GameScene::checkLevel(float dt)
@@ -200,6 +207,7 @@ void GameScene::updateBurgers(float dt)
                 addChild(mana);
                 flyingManas.erase(itt);
                 tutorial = false;
+                ccbAnimationManager->runAnimationsForSequenceNamed("game");
                 break;
             }
         }
