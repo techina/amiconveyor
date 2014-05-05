@@ -1,9 +1,9 @@
 #include "Burger.h"
 
-Burger* Burger::create(const std::string& filename, vector<int> colors, bool isPotato)
+Burger* Burger::create(vector<int> colors, bool isPotato)
 {
     auto *sprite = new Burger(colors, isPotato);
-    if (sprite && sprite->initWithFile(filename))
+    if (sprite && sprite->initWithFile(isPotato ? "img/game_dish.png" : "img/game_bread_under.png"))
     {
         sprite->autorelease();
         sprite->popup = Scale9Sprite::create(Rect(2, 67, 192, 60), "img/game_recipe.png");
@@ -60,8 +60,7 @@ void Burger::addMana(Mana *mana)
     manas.push_back(mana);
     if (isPotato) {
         drawPotatoCount();
-        auto size = getContentSize();
-        mana->setPosition(Point(size.width * rand() / RAND_MAX, size.height * rand() / RAND_MAX));
+        mana->setPosition(Point(62.0f * rand() / RAND_MAX, 49.0f * rand() / RAND_MAX));
     } else {
         int idx = manas.size() - 1;
         if (idx < icons.size()) {
@@ -89,7 +88,7 @@ void Burger::drawPotatoCount()
             cnt++;
         }
     }
-    counter->setString(StringUtils::format("x%d", 10 - cnt));
+    counter->setString(StringUtils::format("x%d", (int)correctColors.size() - cnt));
 }
 
 Mana* Burger::popMana(Node* parent)
@@ -148,7 +147,7 @@ void Burger::jet()
     auto comp = Sprite::create("img/game_compseal.png");
     comp->setPosition(from);
     comp->runAction(Sequence::create(DelayTime::create(0.2f), MoveTo::create(0.2f, to), NULL));
-    addChild(bread);
+    if (!isPotato) addChild(bread);
     addChild(lid);
     addChild(comp);
 
@@ -165,5 +164,6 @@ void Burger::jet()
 
 Point Burger::nextPoint()
 {
-    return Point(getContentSize()) / 2 + Point(-5, 7 * manas.size());
+    auto len = isPotato ? 2 : manas.size();
+    return Point(getContentSize()) / 2 + Point(-5, 7 * len);
 }

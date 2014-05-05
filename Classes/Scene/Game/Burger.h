@@ -13,7 +13,7 @@ class Burger : public Sprite
 {
 public:
     Burger(vector<int> colors, bool isPotato):correctColors(colors),isPotato(isPotato){};
-    static Burger* create(const string& filename, vector<int> colors, bool isPotato);
+    static Burger* create(vector<int> colors, bool isPotato);
     void addMana(Mana* mana);
     bool validate();
     void jet();
