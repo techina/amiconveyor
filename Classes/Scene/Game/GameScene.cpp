@@ -46,6 +46,7 @@ bool GameScene::init()
     levelCounter = 0;
     checkLevel(0);
     spawnCounter = currentLevel.freq;
+    tutorial = true;
 
     /*
     auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -83,11 +84,23 @@ void GameScene::initManas()
     vector<Node*> manas = {manaA, manaB, manaC};
     for (int i = 0; i < manas.size(); i++) {
         auto mana = Mana::create(manas[i], i);
-        mana->setPosition(manas[i]->getPosition());
+        auto to = manas[i]->getPosition();
+        mana->setPosition(to + Point(0, -300));
+        mana->runAction(Sequence::create(MoveTo::create(1, to), CallFuncN::create([&](Node* n) {
+            auto m = static_cast<Mana*>(n);
+            flyingManas.push_back(m);
+        }), NULL));
         addChild(mana);
-        flyingManas.push_back(mana);
     }
     drawScore();
+
+    auto b = Burger::create("img/game_bread_under.png", {0, 1, 2});
+    b->addMana(Mana::create(manaA, 0));
+    b->addMana(Mana::create(manaB, 1));
+    b->setPosition(laneA->getPosition());
+    b->setPositionX(Director::getInstance()->getVisibleSize().width / 2);
+    addChild(b);
+    burgers.push_back(b);
 }
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
@@ -120,6 +133,9 @@ void GameScene::update(float dt)
     checkLevel(dt);
     updateManas(dt);
     updateBurgers(dt);
+    if (tutorial) {
+        return;
+    }
     spawnCounter -= dt;
     if (spawnCounter < 0) {
         spawnCounter = currentLevel.freq;
@@ -137,7 +153,7 @@ void GameScene::update(float dt)
 
 void GameScene::checkLevel(float dt)
 {
-    if (levels.empty()) {
+    if (tutorial || levels.empty()) {
         return;
     }
     levelCounter += dt;
@@ -171,8 +187,10 @@ void GameScene::updateBurgers(float dt)
 {
     for (auto it = burgers.begin(); it != burgers.end();) {
         auto burger = *it;
-        auto vec = Point(-currentLevel.speed * dt, 0);
-        burger->setPosition(burger->getPosition() + vec);
+        if (!tutorial) {
+            auto vec = Point(-currentLevel.speed * dt, 0);
+            burger->setPosition(burger->getPosition() + vec);
+        }
         for (auto itt = flyingManas.begin(); itt != flyingManas.end(); itt++) {
             auto fm = *itt;
             if (fm->getBoundingBox().intersectsRect(burger->getBoundingBox())) {
@@ -181,6 +199,7 @@ void GameScene::updateBurgers(float dt)
                 spawnMana(mana);
                 addChild(mana);
                 flyingManas.erase(itt);
+                tutorial = false;
                 break;
             }
         }

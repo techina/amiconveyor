@@ -18,7 +18,7 @@ Burger* Burger::create(const std::string& filename, vector<int> colors)
         for (int i = 0; i < cc.size(); i++) {
             auto mana = Sprite::create(StringUtils::format("img/game_icon_mana_%d.png", cc[i]));
             float x = wid * ((i % col) + 0.5f) + margin;
-            float y = i <= col ? 46 : 23;
+            float y = i < col ? 46 : 23;
             mana->setPosition(Point(x, y));
             popup->addChild(mana);
             auto num = LabelTTF::create(StringUtils::format("%02d", i + 1), "", 10);

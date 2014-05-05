@@ -43,6 +43,7 @@ class GameScene : public Layer, public CCBMemberVariableAssigner
     float levelCounter;
     Level currentLevel;
     float coolDown;
+    bool tutorial;
 public:
     static Scene* createScene();
     virtual bool init();
